@@ -1,0 +1,1 @@
+window.LINKUP_CONFIG={SUPABASE_URL:"https://hlcfvuhyetpifkkowqjg.supabase.co/rest/v1/",SUPABASE_ANON_KEY:"sb_publishable_DRvtecCTY3wPmpeSE-Ntrg_xwOOE7ib"};
