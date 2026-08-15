@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5865f2">
+<meta name="description" content="LinkUp — friends, chats, stories and calls.">
+<link rel="manifest" href="manifest.json">
+<title>LinkUp</title>
+<style>
+:root{--bg:#0f1117;--panel:#171a22;--panel2:#20242f;--text:#f5f7fb;--muted:#9ba3b5;--accent:#5865f2;--accent2:#7c5cff;--green:#35d07f;--danger:#ed5b6b;--line:#2b3040}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;height:100vh;overflow:hidden}
+button,input{font:inherit}button{border:0;cursor:pointer;color:inherit}
+.app{height:100vh;display:grid;grid-template-columns:240px 1fr 280px}
+.sidebar,.rightbar{background:var(--panel);padding:14px;overflow:auto}
+.brand{font-size:22px;font-weight:800;padding:8px 10px 18px;display:flex;gap:8px;align-items:center}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center}
+.section-title{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;margin:15px 10px 8px;letter-spacing:.08em}
+.nav button,.friend{width:100%;padding:10px;border-radius:10px;background:transparent;text-align:left;display:flex;gap:10px;align-items:center;margin:3px 0}
+.nav button:hover,.friend:hover,.friend.active{background:var(--panel2)}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#6e7cff,#a25cff);font-weight:800;flex:none}
+.dot{width:9px;height:9px;background:var(--green);border-radius:50%;margin-left:auto}
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{height:62px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 18px;gap:12px}
+.topbar h2{margin:0;font-size:17px}.grow{flex:1}
+.iconbtn{width:38px;height:38px;border-radius:10px;background:var(--panel2);font-size:17px}
+.content{flex:1;overflow:auto;padding:22px}
+.view{display:none;max-width:950px;margin:auto}.view.active{display:block}
+.hero{background:linear-gradient(135deg,#20254a,#261d3d);border:1px solid #343b68;border-radius:20px;padding:26px}
+.hero h1{font-size:30px;margin:0 0 7px}.muted{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px}
+.card h3{margin:0 0 8px}.big{font-size:28px;font-weight:800}
+.stories{display:flex;gap:12px;overflow:auto;padding:5px 0 15px}
+.story{min-width:82px;text-align:center}.story .avatar{width:62px;height:62px;margin:auto;border:3px solid var(--accent)}.story p{font-size:12px;margin:6px 0;color:var(--muted)}
+.chat{height:calc(100vh - 105px);display:flex;flex-direction:column;background:var(--bg);border-radius:16px;overflow:hidden}
+.messages{flex:1;overflow:auto;padding:20px}.msg{display:flex;gap:10px;margin:14px 0}.bubble{max-width:70%;background:var(--panel);padding:10px 13px;border-radius:5px 15px 15px 15px}.mine{justify-content:flex-end}.mine .bubble{background:var(--accent);border-radius:15px 5px 15px 15px}.time{font-size:10px;color:var(--muted);margin-top:4px}
+.composer{padding:12px;border-top:1px solid var(--line);display:flex;gap:8px}.composer input,.search{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;color:var(--text);outline:none}.send{background:var(--accent);padding:0 17px;border-radius:12px}
+.profile{display:flex;gap:12px;align-items:center;padding:12px;background:var(--panel2);border-radius:14px}.profile .avatar{width:46px;height:46px}
+.btn{background:var(--accent);padding:10px 14px;border-radius:10px;font-weight:700}.btn.secondary{background:var(--panel2)}.btn.danger{background:var(--danger)}
+.row{display:flex;gap:8px;align-items:center}.wrap{flex-wrap:wrap}
+.friend .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rightbar h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.callbox{background:linear-gradient(145deg,#171b2b,#20254a);border:1px solid #343b68;border-radius:16px;padding:18px;text-align:center}
+.call-actions{display:flex;justify-content:center;gap:10px;margin-top:15px}.call-actions button{width:44px;height:44px;border-radius:50%;background:var(--panel2)}.call-actions .end{background:var(--danger)}
+.modal{position:fixed;inset:0;background:#0009;display:none;place-items:center;padding:20px;z-index:10}.modal.show{display:grid}.modalbox{width:min(520px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#fff;color:#111;padding:10px 16px;border-radius:999px;font-weight:700;display:none;z-index:20}
+@media(max-width:900px){.app{grid-template-columns:72px 1fr}.rightbar{display:none}.sidebar{padding:10px}.brand span,.nav button span,.section-title,.friend .name,.dot{display:none}.nav button,.friend{justify-content:center}.content{padding:12px}.cards{grid-template-columns:1fr}.hero h1{font-size:24px}}
+@media(max-width:600px){.app{grid-template-columns:1fr}.sidebar{position:fixed;bottom:0;left:0;right:0;height:64px;z-index:5;display:flex;justify-content:space-around;padding:6px}.brand,.sidebar .section-title,.friends-title{display:none}.nav{display:flex;width:100%;justify-content:space-around}.nav button{width:auto}.main{padding-bottom:64px}.content{padding:9px}.topbar{height:56px}.chat{height:calc(100vh - 100px)}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">✦</div><span>LinkUp</span></div>
+  <div class="nav">
+    <button onclick="showView('home')">🏠 <span>Home</span></button>
+    <button onclick="showView('chat')">💬 <span>Messages</span></button>
+    <button onclick="showView('stories')">⭕ <span>Stories</span></button>
+    <button onclick="showView('friends')">👥 <span>Friends</span></button>
+    <button onclick="showView('discover')">✨ <span>Discover</span></button>
+    <button onclick="showView('settings')">⚙️ <span>Settings</span></button>
+  </div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <h2 id="pageTitle">Home</h2><div class="grow"></div>
+  <button class="iconbtn" onclick="openCall()">📞</button>
+  <button class="iconbtn" onclick="toast('Notifications are clear ✨')">🔔</button>
+  <button class="iconbtn" onclick="showView('settings')">👤</button>
+</header>
+
+<div class="content">
+<section id="home" class="view active">
+  <div class="hero">
+    <div class="muted">YOUR FRIEND SPACE</div>
+    <h1>Welcome back, Alex 👋</h1>
+    <p class="muted">Chat, share stories, hang out and call your friends — all in one place.</p>
+    <div class="row wrap">
+      <button class="btn" onclick="showView('chat')">Open messages</button>
+      <button class="btn secondary" onclick="showView('stories')">View stories</button>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="muted">Unread messages</div><div class="big" id="unread">3</div></div>
+    <div class="card"><div class="muted">Friends online</div><div class="big">5</div></div>
+    <div class="card"><div class="muted">Your streak</div><div class="big">12 🔥</div></div>
+  </div>
+</section>
+
+<section id="chat" class="view">
+  <div class="chat">
+    <div class="messages" id="messages"></div>
+    <form class="composer" onsubmit="sendMessage(event)">
+      <input id="messageInput" autocomplete="off" placeholder="Message your friend…">
+      <button class="send">Send</button>
+    </form>
+  </div>
+</section>
+
+<section id="stories" class="view">
+  <h1>Stories</h1>
+  <p class="muted">Stories in this demo are stored on this device.</p>
+  <div class="stories" id="storyList"></div>
+  <div class="card">
+    <h3>Post a story</h3>
+    <input class="search" id="storyText" placeholder="What's happening?">
+    <br><br><button class="btn" onclick="postStory()">Post story</button>
+  </div>
+</section>
+
+<section id="friends" class="view">
+  <h1>Friends</h1>
+  <input class="search" id="friendSearch" oninput="renderFriends()" placeholder="Search friends…">
+  <div id="friendList" style="margin-top:12px"></div>
+</section>
+
+<section id="discover" class="view">
+  <h1>Discover ✨</h1>
+  <div class="cards">
+    <div class="card"><h3>🎨 Creative Hub</h3><p class="muted">Share art, edits and ideas.</p><button class="btn secondary" onclick="toast('Coming to the community version')">Join</button></div>
+    <div class="card"><h3>🎮 Game Night</h3><p class="muted">Find friends for your next game.</p><button class="btn secondary" onclick="toast('Room created!')">Create room</button></div>
+    <div class="card"><h3>📚 Study Squad</h3><p class="muted">Make a focused friend group.</p><button class="btn secondary" onclick="toast('Study room opened!')">Open</button></div>
+  </div>
+</section>
+
+<section id="settings" class="view">
+  <h1>Settings</h1>
+  <div class="card">
+    <div class="profile"><div class="avatar">A</div><div><b>Alex</b><div class="muted">@alex</div></div></div>
+    <br>
+    <div class="row wrap">
+      <button class="btn secondary" onclick="toggleTheme()">Toggle theme</button>
+      <button class="btn secondary" onclick="clearData()">Reset local demo</button>
+      <button class="btn" onclick="toast('Profile saved locally ✓')">Save profile</button>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>What this starter includes</h3>
+    <p class="muted">Responsive UI, local chat, stories, friends, search, notifications, call screen, theme toggle and PWA installation support.</p>
+    <p class="muted"><b>For real multi-user chat/calls:</b> connect a backend such as Firebase/Supabase and WebRTC signaling. GitHub Pages alone is static hosting.</p>
+  </div>
+</section>
+</div>
+</main>
+
+<aside class="rightbar">
+  <h3>Quick call</h3>
+  <div class="callbox">
+    <div class="avatar" style="margin:auto;width:60px;height:60px">S</div>
+    <h3 style="color:var(--text);text-transform:none;margin:10px 0 3px">Sam</h3>
+    <div class="muted">Online</div>
+    <div class="call-actions">
+      <button onclick="openCall()">📞</button><button onclick="openCall()">🎥</button>
+    </div>
+  </div>
+  <h3 style="margin-top:22px">Online friends</h3>
+  <div id="onlineFriends"></div>
+</aside>
+</div>
+
+<div class="modal" id="callModal">
+  <div class="modalbox">
+    <div class="callbox">
+      <div class="avatar" style="margin:auto;width:75px;height:75px;font-size:25px">S</div>
+      <h2>Sam</h2><div class="muted" id="callStatus">Calling…</div>
+      <div class="call-actions"><button onclick="toast('Microphone toggled')">🎙️</button><button onclick="toast('Camera toggled')">📷</button><button class="end" onclick="closeCall()">☎</button></div>
+      <p class="muted" style="font-size:12px;margin-top:18px">Demo call interface. Real internet calling needs a signaling/backend service.</p>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const friends=[
+ {name:"Sam",letter:"S",online:true},
+ {name:"Mia",letter:"M",online:true},
+ {name:"Riya",letter:"R",online:true},
+ {name:"Noah",letter:"N",online:false},
+ {name:"Aarav",letter:"A",online:false},
+ {name:"Zoe",letter:"Z",online:true}
+];
+let messages=JSON.parse(localStorage.getItem("linkup_messages")||"null")||[
+ {who:"Sam",text:"Yo! Welcome to LinkUp 👋",mine:false,time:"09:42"},
+ {who:"Sam",text:"This chat is saved on your device.",mine:false,time:"09:43"},
+ {who:"You",text:"That’s actually cool 😭",mine:true,time:"09:44"}
+];
+let stories=JSON.parse(localStorage.getItem("linkup_stories")||"null")||[
+ {name:"Sam",letter:"S",text:"Game night 🎮"},
+ {name:"Mia",letter:"M",text:"Coffee time ☕"},
+ {name:"Riya",letter:"R",text:"New art drop 🎨"}
+];
+
+function showView(id){
+ document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ const titles={home:"Home",chat:"Messages",stories:"Stories",friends:"Friends",discover:"Discover",settings:"Settings"};
+ document.getElementById("pageTitle").textContent=titles[id]||"LinkUp";
+ if(id==="chat")renderMessages();
+}
+function renderMessages(){
+ const box=document.getElementById("messages"); box.innerHTML="";
+ messages.forEach(m=>{
+  const row=document.createElement("div");row.className="msg "+(m.mine?"mine":"");
+  row.innerHTML=(m.mine?"":`<div class="avatar">${m.who[0]}</div>`)+`<div><div class="bubble"></div><div class="time">${m.time}</div></div>`;
+  row.querySelector(".bubble").textContent=m.text;box.appendChild(row);
+ });
+ box.scrollTop=box.scrollHeight;
+}
+function sendMessage(e){
+ e.preventDefault();const input=document.getElementById("messageInput"),text=input.value.trim();if(!text)return;
+ const now=new Date();const time=now.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+ messages.push({who:"You",text,mine:true,time});localStorage.setItem("linkup_messages",JSON.stringify(messages));input.value="";renderMessages();
+ setTimeout(()=>{messages.push({who:"Sam",text:"Got it! 👍",mine:false,time:new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})});localStorage.setItem("linkup_messages",JSON.stringify(messages));renderMessages()},700);
+}
+function renderFriends(){
+ const q=(document.getElementById("friendSearch").value||"").toLowerCase();
+ document.getElementById("friendList").innerHTML=friends.filter(f=>f.name.toLowerCase().includes(q)).map(f=>
+ `<button class="friend" onclick="toast('Opened ${f.name}\\'s profile')"><div class="avatar">${f.letter}</div><div class="name">${f.name}</div>${f.online?'<div class="dot"></div>':''}</button>`).join("");
+}
+function renderOnline(){
+ document.getElementById("onlineFriends").innerHTML=friends.filter(f=>f.online).slice(0,5).map(f=>
+ `<button class="friend" onclick="openCall()"><div class="avatar">${f.letter}</div><div class="name">${f.name}</div><div class="dot"></div></button>`).join("");
+}
+function renderStories(){
+ document.getElementById("storyList").innerHTML=stories.map(s=>`<div class="story" onclick="toast('${s.name}: ${s.text.replaceAll("'","")}')"><div class="avatar">${s.letter}</div><p>${s.name}</p></div>`).join("");
+}
+function postStory(){
+ const input=document.getElementById("storyText"),text=input.value.trim();if(!text)return;
+ stories.unshift({name:"You",letter:"A",text});localStorage.setItem("linkup_stories",JSON.stringify(stories));input.value="";renderStories();toast("Story posted ✓");
+}
+function openCall(){document.getElementById("callModal").classList.add("show");}
+function closeCall(){document.getElementById("callModal").classList.remove("show");}
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.style.display="block";clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.style.display="none",1800)}
+function toggleTheme(){
+ const light=document.body.dataset.theme!=="light";document.body.dataset.theme=light?"light":"dark";
+ if(light){document.documentElement.style.setProperty("--bg","#f3f5f9");document.documentElement.style.setProperty("--panel","#fff");document.documentElement.style.setProperty("--panel2","#eef1f6");document.documentElement.style.setProperty("--text","#141721");document.documentElement.style.setProperty("--muted","#687080");document.documentElement.style.setProperty("--line","#dfe3eb")}
+ else location.reload();
+}
+function clearData(){localStorage.removeItem("linkup_messages");localStorage.removeItem("linkup_stories");location.reload()}
+renderMessages();renderFriends();renderOnline();renderStories();
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
